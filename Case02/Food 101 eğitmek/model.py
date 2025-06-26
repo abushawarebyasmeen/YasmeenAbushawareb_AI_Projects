@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 """model.ipynb"""
 
 import torch
