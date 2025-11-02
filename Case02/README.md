@@ -1,132 +1,141 @@
-# Food-101 Görüntü Sınıflandırma Projesi — Full Report
+
+# Food-101 Image Classification Project — Full Report
 
 ---
 
-## Proje Genel Tanıtımı
+## Project Overview
 
-Bu çalışmada, popüler Food-101 görüntü sınıflandırma veri seti kullanılarak, derin öğrenme tabanlı farklı modellerle yiyecek kategorilerinin sınıflandırılması hedeflenmiştir.
+This study aims to classify food categories using the popular **Food-101 image classification dataset** with different deep learning models.
 
-Çalışma iki farklı projeden oluşmaktadır:
+The work consists of **two projects**:
 
-- **5Katagori_Resnet18:** Food-101 veri setinden seçilen **5 kategori** (pizza, hamburger, sushi, french fries, ice cream) üzerinde ResNet-18 modeli ile transfer öğrenme yöntemi
- kullanılarak sınıflandırma yapılmıştır.
-- **Proje 2:** Food-101 veri setinden seçilen **20 kategori** üzerinde VGG16 ve ResNet18 modelleri ile transfer öğrenme, freez ve ince ayar (fine-tuning) yöntemleri uygulanmıştır. 
-İnce ayar ve hiperparametre düzenlemeleriyle model performansı artırılmıştır.
+* **5Category_ResNet18:** Classification on **5 selected categories** (pizza, hamburger, sushi, french fries, ice cream) from the Food-101 dataset using **ResNet-18** with transfer learning.
+* **Project 2:** Classification on **20 selected categories** from the Food-101 dataset using **VGG16 and ResNet18** with transfer learning, freezing, and fine-tuning. Fine-tuning and hyperparameter adjustments were applied to improve model performance.
 
 ---
 
-## 5Katagori_Resnet18: 5 Kategori Üzerinde ResNet-18 ile Sınıflandırma
+## 5Category_ResNet18: Classification with ResNet-18 on 5 Categories
 
-### Kullanılan Kategoriler
-- pizza  
-- hamburger  
-- sushi  
-- french_fries  
-- ice_cream  
+### Categories Used
 
-### Veri Seti ve Ön İşleme
-- Her kategori için 750 eğitim ve 250 test görüntüsü seçildi.
-- Görüntüler 224x224 boyutuna yeniden boyutlandırıldı.
-- Veri artırma (data augmentation) teknikleri uygulandı: yatay çevirme, rastgele döndürme, zoom, kaydırma.
-- Piksel değerleri normalize edildi.
-- Veri %75 eğitim, %10 doğrulama, %15 test olarak bölündü.
+* pizza
+* hamburger
+* sushi
+* french_fries
+* ice_cream
 
-### Model Seçimi ve Eğitimi
-- **Model:** ResNet-18  
-- **Neden ResNet-18?**  
-  Residual bağlantıları sayesinde derin ağlarda gradyan kaybını önler, ImageNet önceden eğitilmiş ağırlıkları transfer öğrenmede avantaj sağlar.
-- **Transfer Öğrenme:**  
-  Önceden eğitilmiş ImageNet ağırlıkları kullanıldı ve son katmanlar 5 kategori için yeniden eğitildi.
-- **Erken Durdurma (Early Stopping):**  
-  Modelin doğrulama performansı (özellikle F1 skoru) belirli sayıda epoch boyunca iyileşmediğinde (bu projede 3 epoch) eğitim durdurulur. 
-  Bu, aşırı öğrenmenin (overfitting) önüne geçmek ve gereksiz zaman kaybını engellemek için uygulanır.   
-  Eğitim, 30 epoch yerine doğrulama skorlarındaki 3 kere iyileşme durduğunda eğitim duryor 
-  **10 epoch'ta iyileşebilir olmasına rağmen erken durduruldu**. Böylece zaman kaybı önlendi ve en iyi model ağırlıkları saklandı.
+### Dataset and Preprocessing
 
-### Eğitim Sonuçları (10. Epoch)
-| Metrik               | Değer    |
-|----------------------|----------|
-| Train Loss           | 0.5447   |
-| Train Accuracy       | 80.85%   |
-| Validation Loss      | 0.2765   |
-| Validation Accuracy  | 90.60%   |
-| Validation Precision | 0.9071   |
-| Validation Recall    | 0.9060   |
-| Validation F1 Score  | 0.9059   |
+* Selected 750 training and 250 test images per category.
+* Images were resized to **224x224**.
+* Data augmentation applied: horizontal flip, random rotation, zoom, shift.
+* Pixel values normalized.
+* Split: 75% training, 10% validation, 15% test.
 
-- En iyi model `best_model_resnet.pth` olarak kaydedildi.
+### Model Selection and Training
 
-### Model Değerlendirme
-- Test setinde accuracy, precision, recall ve F1 skorları hesaplandı.
-- Confusion matrix görselleştirildi.
+* **Model:** ResNet-18
+* **Why ResNet-18?**
+  Residual connections prevent gradient loss in deep networks and ImageNet pretrained weights are advantageous for transfer learning.
+* **Transfer Learning:**
+  Pretrained ImageNet weights used; last layers retrained for 5 categories.
+* **Early Stopping:**
+  Training stops if validation performance (especially F1 score) does not improve for 3 consecutive epochs.
+  Although improvement could occur at epoch 10, training stopped early to save time and prevent overfitting. The best model weights were saved.
 
-### Zorluklar
-- Veri setinin tamamı çok büyük olduğu için sadece 5 kategori seçildi.
+### Training Results (Epoch 10)
 
-### İyileştirme Önerileri
-- Daha fazla kategori ile çalışma.
-- Öğrenme oranı zamanlaması ve erken durdurma.
-- Farklı mimari ve ensemble modeller.
-- Hiperparametre optimizasyonu.
+| Metric               | Value  |
+| -------------------- | ------ |
+| Train Loss           | 0.5447 |
+| Train Accuracy       | 80.85% |
+| Validation Loss      | 0.2765 |
+| Validation Accuracy  | 90.60% |
+| Validation Precision | 0.9071 |
+| Validation Recall    | 0.9060 |
+| Validation F1 Score  | 0.9059 |
 
----
+* Best model saved as `best_model_resnet.pth`.
 
-## Proje 2: 20 Kategori Üzerinde VGG16 ve ResNet18 Transfer Öğrenme ve İnce Ayar
+### Model Evaluation
 
-### Genel Bakış
-- 20 farklı Food-101 kategorisi seçildi.
-- CNN mimarileri VGG16 ve ResNet18 kullanıldı.
-- Transfer öğrenme ve ince ayar teknikleri ile performans artırıldı.
-- Ek katmanlar ve dropout oranları ile model iyileştirildi.
-- İnce ayar yapılırken bazı modellerde feature extraction (katman kilitleme) yapıldı, bazılarında tüm katmanlar serbest bırakıldı.
-- Erken durdurma ve öğrenme oranı ayarlaması uygulandı.
+* Accuracy, precision, recall, and F1 scores calculated on the test set.
+* Confusion matrix visualized.
 
-### Önemli Deney Sonuçları
-| Model ve Değişiklik                                  | Doğrulama/Test Doğruluğu (%) |
-|-----------------------------------------------------|------------------------------|
-| ResNet (tüm katmanlar ince ayar)                    | 71.98                        |
-| ResNet (tüm katmanlar ince ayar, yüksek öğrenme hızı)| 44.21                        |
-| ResNet (sadece fully connected katman ince ayar)   | 66.78                        |
-| ResNet (1 veya 2 rezidüel blok kaldırıldı)          | 51.6 - 53.12 arası            |
-| VGG (tüm katmanlar ince ayar, uygun öğrenme hızı)  | 74.40                        |
-| VGG (feature extraction, katman kilitli)            | 68.62                        |
+### Challenges
 
-### Öne Çıkan Noktalar
-- İnce ayar (fine-tuning) tüm katmanlarda yapılınca doğruluk önemli ölçüde arttı.
-- Uygun öğrenme hızı ve erken durdurma başarıyı etkiledi.
-- Ağırlık haritaları ve özellik aktivasyonları analiz edilerek model yorumlanabilirliği artırıldı.
+* Only 5 categories were selected due to the large size of the full dataset.
 
-### Kullanılan Dosyalar
-- `data.py`, `prepare_data`: Veri ön işleme ve yükleme.
-- `model.py`: Model mimarileri ve yapılandırmaları.
-- Jupyter Notebook dosyaları:
-  - `resnet18_InceAyar.ipynb`
-  - `resnet_kilitli.ipynb`
-  - `vgg_InceAyar.ipynb`
-  - `vgg_Kilitli.ipynb`
+### Improvement Suggestions
+
+* Work with more categories.
+* Adjust learning rate scheduling and early stopping.
+* Try different architectures or ensemble models.
+* Hyperparameter optimization.
 
 ---
 
-## Genel Sonuç ve Öneriler
+## Project 2: Transfer Learning and Fine-Tuning on 20 Categories with VGG16 and ResNet18
 
-- 5Katagori_Resnet18’de sınırlı kategoriyle hızlı ve başarılı bir model geliştirildi.  
-- Proje 2’de daha geniş kategori seti ve detaylı ince ayar ile model performansı yükseltildi.  
-- Transfer öğrenme ve ince ayar derin öğrenme projelerinde çok önemli ve etkili tekniklerdir.  
-- İleri aşamada, farklı modellerin karşılaştırılması, hiperparametre optimizasyonu, ensemble yaklaşımları ve veri artırma tekniklerinin detaylandırılması önerilir.
+### Overview
+
+* 20 different categories from Food-101 were selected.
+* CNN architectures **VGG16** and **ResNet18** were used.
+* Performance improved with transfer learning and fine-tuning.
+* Additional layers and dropout rates improved model performance.
+* Fine-tuning strategy: some models used feature extraction (layer freezing), others unfroze all layers.
+* Early stopping and learning rate adjustments applied.
+
+### Key Experiment Results
+
+| Model & Modification                                | Validation/Test Accuracy (%) |
+| --------------------------------------------------- | ---------------------------- |
+| ResNet (fine-tuning all layers)                     | 71.98                        |
+| ResNet (fine-tuning all layers, high learning rate) | 44.21                        |
+| ResNet (fine-tuning only fully connected layers)    | 66.78                        |
+| ResNet (1 or 2 residual blocks removed)             | 51.6 - 53.12                 |
+| VGG (fine-tuning all layers, proper learning rate)  | 74.40                        |
+| VGG (feature extraction, layers frozen)             | 68.62                        |
+
+### Highlights
+
+* Fine-tuning all layers significantly increased accuracy.
+* Proper learning rate and early stopping influenced success.
+* Weight maps and feature activations analyzed for improved model interpretability.
+
+### Files Used
+
+* `data.py`, `prepare_data`: Data preprocessing and loading.
+* `model.py`: Model architectures and configurations.
+* Jupyter Notebook files:
+
+  * `resnet18_FineTuning.ipynb`
+  * `resnet_frozen.ipynb`
+  * `vgg_FineTuning.ipynb`
+  * `vgg_Frozen.ipynb`
 
 ---
 
-## Çalıştırma Talimatları
+## General Conclusion and Recommendations
 
-- Proje kodları Jupyter Notebook formatındadır.
-- Gerekli Python kütüphaneleri `requirements.txt` içinde listelenmiştir.
-- Modeller `.pth` dosyaları olarak kaydedilmiştir.
-- Google Colab veya lokal ortamda kolayca çalıştırılabilir.
+* **5Category_ResNet18** produced a fast and successful model with a limited set of categories.
+* **Project 2** improved performance using a broader category set and detailed fine-tuning.
+* Transfer learning and fine-tuning are critical and effective techniques in deep learning projects.
+* Future work: comparing different models, hyperparameter optimization, ensemble methods, and advanced data augmentation techniques.
 
 ---
 
-## Ek Notlar
+## Running Instructions
 
-- Proje 1’de erken durdurma ile 30 epoch yerine 10 epoch’ta eğitim tamamlandı. Bu, zaman kazanmak ve overfitting’i engellemek için stratejik bir yaklaşımdır.
+* Project code is in **Jupyter Notebook** format.
+* Required Python libraries are listed in `requirements.txt`.
+* Models are saved as `.pth` files.
+* Can be run easily on **Google Colab** or locally.
+
+---
+
+## Additional Notes
+
+* In Project 1, early stopping completed training at **epoch 10** instead of 30. This strategy saved time and prevented overfitting.
 
 ---
